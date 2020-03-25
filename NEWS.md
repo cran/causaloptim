@@ -1,3 +1,10 @@
+# causaloptim 0.6.5
+
+## Bugfixes
+
+- Fixed mismatched new/delete/delete[] in C++ code
+
+
 # causaloptim 0.6.4
 
 ## Bugfixes
