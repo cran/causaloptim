@@ -3,8 +3,8 @@ Encoding: UTF-8
 Type: Package
 Title: An Interface to Specify Causal Graphs and Compute Bounds on
         Causal Effects
-Version: 0.6.5
-Date: 2020-03-24
+Version: 0.7.1
+Date: 2020-05-07
 Authors@R: c(
     person("Michael C", "Sachs", role = c("aut", "cre"), email = "sachsmc@gmail.com"), 
     person("Erin E", "Gabriel", role = "aut"), 
@@ -31,17 +31,17 @@ License: MIT + file LICENSE
 Imports: methods, Rcpp (>= 1.0.1), shiny
 Depends: igraph
 LinkingTo: Rcpp
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/sachsmc/causaloptim
 BugReports: https://github.com/sachsmc/causaloptim/issues
 NeedsCompilation: yes
-Packaged: 2020-03-24 08:53:25 UTC; micsac
+Packaged: 2020-05-07 14:48:10 UTC; micsac
 Author: Michael C Sachs [aut, cre],
   Erin E Gabriel [aut],
   Arvid Sjölander [aut],
   Alexander A Balke [ctb] ((C++ code)),
   Colorado Reed [ctb] ((graph-creator.js))
 Repository: CRAN
-Date/Publication: 2020-03-25 18:30:03 UTC
+Date/Publication: 2020-05-07 15:30:01 UTC
