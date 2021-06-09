@@ -15,7 +15,7 @@ V(b)$latent <- c(0,0,1)
 E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
 
 obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
-optimize_effect(obj)
+optimize_effect_2(obj)
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  b <- graph_from_literal(Z1 -+ X, Z2 -+ X, Z2 -+ Z1, Ul -+ Z1, Ul -+ Z2,
@@ -27,7 +27,7 @@ optimize_effect(obj)
 #  
 #  obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 #  
-#  bounds.multi <- optimize_effect(obj)
+#  bounds.multi <- optimize_effect_2(obj)
 #  
 #  b2 <- graph_from_literal(Z1 -+ X, Ul -+ Z1,
 #                           X -+ Y, Ur -+ X, Ur -+ Y)
@@ -39,7 +39,7 @@ optimize_effect(obj)
 #  
 #  ## single instrument
 #  obj2 <- analyze_graph(b2, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
-#  bounds.sing <- optimize_effect(obj2)
+#  bounds.sing <- optimize_effect_2(obj2)
 #  
 #  
 #  joint <- function(df, alpha, pUr, pUl) {
@@ -147,7 +147,7 @@ optimize_effect(obj)
 #    bees <- do.call(f.multi, condprobs$multi)
 #    bees.sing <- do.call(f.single, condprobs$sing)
 #  
-#    result[i, ] <- c(sort(bees), abs(bees[2] - bees[1]), sort(bees.sing), abs(bees.sing[2]- bees.sing[1]))
+#    result[i, ] <- unlist(c(sort(bees), abs(bees[2] - bees[1]), sort(bees.sing), abs(bees.sing[2]- bees.sing[1])))
 #  
 #  }
 #  colnames(result) <- c("bound.lower",
@@ -171,5 +171,5 @@ E(b)$edge.monotone <- c(0, 0, 0, 0, 0)
 obj <- analyze_graph(b, constraints = "Y2(Y = 1) >= Y2(Y = 0)",
                      effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 
-optimize_effect(obj)
+optimize_effect_2(obj)
 

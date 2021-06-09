@@ -3,12 +3,13 @@ Encoding: UTF-8
 Type: Package
 Title: An Interface to Specify Causal Graphs and Compute Bounds on
         Causal Effects
-Version: 0.7.1
-Date: 2020-05-07
+Version: 0.8.2
+Date: 2021-06-09
 Authors@R: c(
     person("Michael C", "Sachs", role = c("aut", "cre"), email = "sachsmc@gmail.com"), 
     person("Erin E", "Gabriel", role = "aut"), 
     person("Arvid", "Sjölander", role = "aut"), 
+    person("Gustav", "Jonzon", role = "ctb", comment = "(improved vertex enumeration)"),
     person("Alexander A", "Balke", role = "ctb",comment ="(C++ code)"), 
     person("Colorado", "Reed", role = "ctb", comment = "(graph-creator.js)")
     )
@@ -28,20 +29,21 @@ Description: When causal quantities are not identifiable from the observed data,
             a preprint by Sachs, Gabriel, and Sjölander (2020) 
             <https://sachsmc.github.io/causaloptim/articles/CausalBoundsMethods.pdf>.
 License: MIT + file LICENSE
-Imports: methods, Rcpp (>= 1.0.1), shiny
-Depends: igraph
+Imports: methods, Rcpp (>= 1.0.1), shiny, rcdd
+Depends: R (>= 3.5.0), igraph
 LinkingTo: Rcpp
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/sachsmc/causaloptim
 BugReports: https://github.com/sachsmc/causaloptim/issues
 NeedsCompilation: yes
-Packaged: 2020-05-07 14:48:10 UTC; micsac
+Packaged: 2021-06-09 09:46:43 UTC; micsac
 Author: Michael C Sachs [aut, cre],
   Erin E Gabriel [aut],
   Arvid Sjölander [aut],
+  Gustav Jonzon [ctb] ((improved vertex enumeration)),
   Alexander A Balke [ctb] ((C++ code)),
   Colorado Reed [ctb] ((graph-creator.js))
 Repository: CRAN
-Date/Publication: 2020-05-07 15:30:01 UTC
+Date/Publication: 2021-06-09 10:10:08 UTC
