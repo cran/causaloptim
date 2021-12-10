@@ -3,8 +3,8 @@ Encoding: UTF-8
 Type: Package
 Title: An Interface to Specify Causal Graphs and Compute Bounds on
         Causal Effects
-Version: 0.8.2
-Date: 2021-06-09
+Version: 0.9.1
+Date: 2021-12-10
 Authors@R: c(
     person("Michael C", "Sachs", role = c("aut", "cre"), email = "sachsmc@gmail.com"), 
     person("Erin E", "Gabriel", role = "aut"), 
@@ -26,19 +26,20 @@ Description: When causal quantities are not identifiable from the observed data,
             user defined DAG, query, and constraints, and returns tight bounds. The bounds can be 
             converted to R functions to evaluate them for specific datasets, and to latex code for 
             publication. The methods and proofs of tightness and validity of the bounds are described in
-            a preprint by Sachs, Gabriel, and Sjölander (2020) 
+            a preprint by Sachs, Gabriel, and Sjölander (2021) 
             <https://sachsmc.github.io/causaloptim/articles/CausalBoundsMethods.pdf>.
 License: MIT + file LICENSE
 Imports: methods, Rcpp (>= 1.0.1), shiny, rcdd
 Depends: R (>= 3.5.0), igraph
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
-Suggests: knitr, rmarkdown
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/sachsmc/causaloptim
 BugReports: https://github.com/sachsmc/causaloptim/issues
+Config/testthat/edition: 3
 NeedsCompilation: yes
-Packaged: 2021-06-09 09:46:43 UTC; micsac
+Packaged: 2021-12-10 16:05:58 UTC; micsac
 Author: Michael C Sachs [aut, cre],
   Erin E Gabriel [aut],
   Arvid Sjölander [aut],
@@ -46,4 +47,4 @@ Author: Michael C Sachs [aut, cre],
   Alexander A Balke [ctb] ((C++ code)),
   Colorado Reed [ctb] ((graph-creator.js))
 Repository: CRAN
-Date/Publication: 2021-06-09 10:10:08 UTC
+Date/Publication: 2021-12-10 16:20:02 UTC

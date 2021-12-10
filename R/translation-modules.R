@@ -25,21 +25,23 @@ create_response_function <- function(graph, right.vars, cond.vars) {
         names(arglist) <- parents
         
         if (length(parents) == 0) {
-            values <- list(function() {
-                0
-            }, function() {
-                1
+            values <- lapply(1:numberOfValues(graph, names(i)), function(j) {
+                bin <- function() {
+                }
+                body(bin) <- eval(parse(text = paste0(j, "-1")))
+                environment(bin) <- baseenv()
+                bin
             })
         } else {
             ## da matrix
             
             poss.ins <-
-                expand.grid(lapply(parents, function(x)
-                    c(0, 1)))
+                expand.grid(lapply(parents, function(varname)
+                    seq(from = 0, to = numberOfValues(graph = graph, varname = varname) - 1)))
             colnames(poss.ins) <- parents
             ini.outs <-
                 expand.grid(lapply(1:nrow(poss.ins), function(x)
-                    c(0, 1)))
+                    seq(from = 0, to = numberOfValues(graph = graph, varname = names(i)) - 1)))
             
             args <- vector(mode = "list", length = ncol(poss.ins))
             names(args) <- parents
@@ -66,7 +68,7 @@ create_response_function <- function(graph, right.vars, cond.vars) {
                            ),
                            ")")
                 body(f.tmp) <- parse(text = fbod)
-                environment(f.tmp) <- parent.frame()
+                environment(f.tmp) <- baseenv()
                 
                 values[[j]] <- f.tmp
                 
@@ -148,11 +150,11 @@ create_q_matrix <- function(respvars, right.vars, cond.vars, constraints) {
             resp.out.left <- unlist(lapply(respvars[[iin$leftout]]$values, function(f) do.call(f, tmpenv.left)))
             resp.out.right <- unlist(lapply(respvars[[iin$rightout]]$values, function(f) do.call(f, tmpenv.right)))
             
-            if(iin$rightout %in% c("0", "1")) {
+            if(!is.na(suppressWarnings(as.numeric(iin$rightout)))) {
                 resp.out.right <- rep(iin$rightout, length(resp.out.left))
             }
             
-            if(iin$leftout == iin$rightout | iin$rightout %in% c("0", "1")) {  ## constraints are for the same counterfactual, these lead to removals of qs
+            if(iin$leftout == iin$rightout | !is.na(suppressWarnings(as.numeric(iin$rightout)))) {  ## constraints are for the same counterfactual, these lead to removals of qs
                 settozeroindex <- respvars[[iin$leftout]]$index[!do.call(iin$operator, list(resp.out.left, resp.out.right))]
                 
                 if(length(settozeroindex) > 0) {
@@ -393,7 +395,15 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                 thisintervene <- unlist(list_to_path(thisvar, names(outcome)))
                 basevars <- sapply(strsplit(names(thisintervene), " -> "), "[", 1)
                 ## check for missing paths from intervention sets to outcome
+                ## only do this if any of the top level intervention sets doesn't contain all
+                ## parents of the outcome
+                ## the logic being that if the user wrote that as an effect, then 
+                ## the intention was to propagate that intervention set forward through
+                ## all paths in the graph to the outcome
                 
+                parents <- adjacent_vertices(graph, v = outcome, mode = "in")[[1]]
+                if(length(setdiff(names(parents[which(names(parents) != "Ur")]), 
+                                  names(thisvar))) > 0) {
                 isets <- unique(btm_var(thisvar))
                 missingpaths <- lapply(isets, function(cc) {
                     allpaths <- all_simple_paths(graph, from = cc, to = names(outcome), mode = "out")
@@ -401,7 +411,7 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                     setdiff(paths2, names(thisintervene))
                 })
                 for(pp in 1:length(missingpaths)) {
-                    
+
                     if(length(missingpaths[[pp]]) == 0) {
                         next
                     }
@@ -409,9 +419,9 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                     addval2 <- rep(addval, length(missingpaths[[pp]]))
                     names(addval2) <- missingpaths[[pp]]
                     thisintervene <- c(thisintervene, addval2)
-                    
+
                 }
-                
+                }
                 
                 gee_rA <- function(r, i, path = NULL) {
                     

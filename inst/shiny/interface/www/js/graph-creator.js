@@ -277,6 +277,7 @@
             d.latent = 0;
             d.outcome = 0;
             d.exposure = 0;
+            d.nvals = 2;
             thisGraph.insertTitleLinebreaks(d3node, d.title);
             d3.select(this.parentElement).remove();
           });
@@ -423,7 +424,7 @@
             thisGraph.updateGraph();
         }
         break;
-    case 69: // e key for outcome
+    case 69: // e key for exposure
         if (selectedNode) {
             console.log(d3.event.keyCode);
             var i;
@@ -432,6 +433,84 @@
             }
             state.selectedNode.exposure = 1 - state.selectedNode.exposure;
             state.selectedNode.latent = 0;
+            thisGraph.updateGraph();
+        }
+        break;
+    case 67: // c key for cardinality/categories
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            $(document).ready(function() {
+                $('#nvalsModal').modal();
+                $('#nvalsSubmit').click(function() {
+                    var nvalsNumber = $('#nvalsInput').val();
+                    state.selectedNode.nvals = nvalsNumber;
+                    toastMessage("Number of values of " + selectedNode.title + " is set to " + nvalsNumber);
+                    thisGraph.updateGraph();
+                });
+            });
+        }
+        break;
+    case 50: // 2 key for dichotomous variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 2;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 2");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 51: // 3 key for trichotomous variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 3;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 3");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 52: // 4 key for 4-level variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 4;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 4");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 53: // 5 key for 5-level variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 5;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 5");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 54: // 6 key for 6-level variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 6;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 6");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 55: // 7 key for 7-level variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 7;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 7");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 56: // 8 key for 8-level variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 8;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 8");
+            thisGraph.updateGraph();
+        }
+        break;
+    case 57: // 9 key for 9-level variable
+        if (selectedNode) {
+            console.log(d3.event.keyCode);
+            state.selectedNode.nvals = 9;
+            toastMessage("Number of values of " + selectedNode.title + " is set to 9");
             thisGraph.updateGraph();
         }
         break;
@@ -557,6 +636,15 @@
             this.classList.remove("exposure");
         }
     });
+    
+      thisGraph.circles.each(function(d){ 
+        if(d.nvals == 2) {
+            this.classList.add("binary");
+        }
+        if(d.nvals > 2) {
+            this.classList.add("multilevel");
+        }
+    });
 
     // remove old nodes
     thisGraph.circles.exit().remove();
@@ -570,6 +658,7 @@
             sourceLatent: val.source.latent, targetLatent: val.target.latent, 
             sourceOutcome: val.source.outcome, targetOutcome: val.target.outcome, 
             sourceExposure: val.source.exposure, targetExposure: val.target.exposure,
+            sourceNvals: val.source.nvals, targetNvals: val.target.nvals,
             edgeMonotone: val.monotone, sourceX: val.source.x, sourceY: val.source.y, 
             targetX: val.target.x, targetY: val.target.y
         });
@@ -642,3 +731,10 @@
  
  
 //})(window.d3, window.saveAs, window.Blob);
+
+function toastMessage(textMessage) {
+    var x = document.getElementById("toast");
+    x.className = "show";
+    $('#toast').text(textMessage);
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}

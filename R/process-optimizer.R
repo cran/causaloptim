@@ -14,6 +14,7 @@
 #' b <- graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y)
 #' V(b)$leftside <- c(0,0,0)
 #' V(b)$latent <- c(0,0,1)
+#' V(b)$nvals <- c(2,2,2)
 #' E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
 #' obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 #' optimize_effect(obj)
@@ -129,6 +130,7 @@ print.balkebound <- function(x, ...){
 #' b <- graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y)
 #' V(b)$leftside <- c(0,0,0)
 #' V(b)$latent <- c(0,0,1)
+#' V(b)$nvals <- c(2,2,2)
 #' E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
 #' obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 #' optimize_effect_2(obj)
@@ -209,6 +211,7 @@ opt_effect <- function(opt, obj) {
 #' b <- graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y)
 #' V(b)$leftside <- c(0,0,0)
 #' V(b)$latent <- c(0,0,1)
+#' V(b)$nvals <- c(2,2,2)
 #' E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
 #' obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 #' bounds <- optimize_effect(obj)
@@ -255,6 +258,7 @@ interpret_bounds <- function(bounds, parameters) {
 #' Shorten strings to 80 characters wide
 #' 
 #' @param x String
+#' @return A string with line breaks to keep the width less than 80 characters
 
 shortentxt <- function(x) {
     
@@ -297,6 +301,7 @@ shortentxt <- function(x) {
 #' b <- graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y)
 #' V(b)$leftside <- c(0,0,0)
 #' V(b)$latent <- c(0,0,1)
+#' V(b)$nvals <- c(2,2,2)
 #' E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
 #' obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 #' bounds <- optimize_effect(obj)
