@@ -118,6 +118,8 @@ analyze_graph <- function(graph, constraints, effectt) {
     linconstr.list <- create_R_matrix(graph, obsvars, respvars, 
                                       p.vals, parameters, q.list, variables)
     
+    parameters <- linconstr.list$newparams
+    p.vals <- linconstr.list$newpvals
     ## determine objective based on exposure and outcome in terms of qs
 
     effect <- parse_effect(effectt)
@@ -125,6 +127,16 @@ analyze_graph <- function(graph, constraints, effectt) {
     chk0 <- lapply(effect$vars, btm_var)
     
     interven.vars <- unique(unlist(chk0))
+    
+    allnmes <- unique(c(interven.vars, unlist(lapply(effect$vars, names))))
+    
+    realnms <- names(V(graph))
+    if(any(!allnmes %in% realnms)) {
+        
+        stop(sprintf("Names %s in effect not specified in graph!", 
+                     paste(allnmes[which(!allnmes %in% realnms)], collapse = ", ")))
+        
+    }
     
     ## check that children of intervention sets are on the right
     
@@ -144,16 +156,7 @@ analyze_graph <- function(graph, constraints, effectt) {
       stop(sprintf("Operator '%s' not allowed!", chk0["oper"]))
     }
     
-    allnmes <- unique(unlist(lapply(effect$vars, names)))
-    
-    realnms <- names(V(graph))
-    if(any(!allnmes %in% realnms)) {
-      
-      stop(sprintf("Names %s in effect not specified in graph!", 
-                       paste(allnmes[which(!allnmes %in% realnms)], collapse = ", ")))
-      
-    }
-    
+   
     if(length(names(cond.vars)) > 0) {
       
       chkpaths <- unlist(lapply(cond.vars, function(x){ 

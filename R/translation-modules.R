@@ -1,14 +1,24 @@
 #' Translate regular DAG to response functions
 #'
 #' @param graph An \link[igraph]{aaa-igraph-package} object that represents a
-#'   directed acyclic graph must contain edge attributes named "leftside" and
-#'   "lrconnect" that takes values 0 and 1. Only one edge may have a value 1 for
-#'   lrconnect. The shiny app returns a graph in this format.
+#'   directed acyclic graph that contains certain edge attributes. 
+#'    The shiny app returns a graph in this format and see examples.
 #' @param right.vars Vertices of graph on the right side
 #' @param cond.vars Vertices of graph on the left side
 #' 
 #' @return A list of functions representing the response functions
 #' @export
+#' @examples 
+#' ### confounded exposure and outcome
+
+#' b <- igraph::graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y)
+#' V(b)$leftside <- c(0,0,0)
+#' V(b)$latent <- c(0,0,1)
+#' V(b)$nvals <- c(2,2,2)
+#' E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
+#' cond.vars <- V(b)[V(b)$leftside == 1 & names(V(b)) != "Ul"]
+#' right.vars <- V(b)[V(b)$leftside == 0 & names(V(b)) != "Ur"] 
+#' create_response_function(b, right.vars, cond.vars)
 
 create_response_function <- function(graph, right.vars, cond.vars) {
     
@@ -303,7 +313,7 @@ create_R_matrix <- function(graph, obsvars, respvars, p.vals, parameters, q.list
     baseind[1:nrow(p.vals)] <- TRUE
     attr(p.constraints, "baseconstr") <- baseind
     
-    list(p.constraints = p.constraints, R = R)
+    list(p.constraints = p.constraints, R = R, newparams = parameters, newpvals = p.vals)
     
     
 }

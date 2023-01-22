@@ -152,6 +152,8 @@ function(input, output) {
       removeUI(selector = "#constraintsdiv")
       removeUI(selector = "#myplot")
       removeUI(selector = "#results")
+      removeUI(selector = "#toast")
+      removeUI(selector = "#nvalsModal")
       
         myin <- edgeList()
         
@@ -190,32 +192,8 @@ function(input, output) {
             
             rightvars <- V(graphres)[V(graphres)$leftside == 0 & names(V(graphres)) != "Ur"]
             
-            expo <- V(graphres)[V(graphres)$exposure == 1]
-            outc <- V(graphres)[V(graphres)$outcome == 1]
-            effectpath <- all_simple_paths(graphres, from = expo, to = outc)
+            default.effect <- get_default_effect(graphres)
             
-            if(length(outc) == 0 | length(expo) == 0) {
-              default.effect <- ""
-            } else {
-            ## default total effect
-            def.eff <- paste0(names(outc), "(")
-            for(j in 1:length(effectpath)) {
-              res <- ""
-              nvs <- length(effectpath[[j]])
-              for(k in max(1, nvs - 1):1) {
-                thisvar <- effectpath[[j]][k]
-                res <- paste0(res, names(thisvar), 
-                              ifelse(names(thisvar) == names(expo), 
-                                     " = %s", "("))
-                
-              }
-              def.eff <- paste0(def.eff, res, paste(rep(")", max(1, nvs - 1)), collapse =  ""), ifelse(j < length(effectpath), ", ", ""))
-              
-            }
-           
-            def.eff <- paste0("p{", def.eff, "=1}")
-            default.effect <- paste(sapply(c(1, 0), function(x) sprintf(def.eff, x, x)), collapse = " - ")
-            }
             ##
             
             effectUI <- div(id = "effect", 
@@ -265,15 +243,25 @@ function(input, output) {
         } else {
           
           
-          
+          badnames <- FALSE
           graph <- igraphFromList()
           
           chk0 <- lapply(parsed.test$vars, causaloptim:::btm_var)
           
           interven.vars <- unique(unlist(chk0))
+          allnmes <- unique(c(interven.vars, unlist(lapply(parsed.test$vars, names))))
+          
+          realnms <- names(V(graph))
+          if(any(!allnmes %in% realnms)) {
+              
+              error <- sprintf("Names %s in effect not specified in graph!", 
+                               paste(allnmes[which(!allnmes %in% realnms)], collapse = ", "))
+              badnames <- TRUE
+          }
+          
           
           ## check that children of intervention sets are on the right
-          
+          if(!badnames) {
           any.children.onleft <- sapply(interven.vars, function(v) {
             
             children <- neighbors(graph, V(graph)[v], mode = "out")
@@ -288,38 +276,33 @@ function(input, output) {
                              paste(interven.vars[which(any.children.onleft)], collapse = ", "))
           }
           
+          
+          if(any(V(graph)$leftside == 1 & names(V(graph)) != "Ul")) {
+              cond.vars <- names(V(graph)[V(graph)$leftside == 1 & names(V(graph)) != "Ul"])
+              chkpaths <- unlist(lapply(cond.vars, function(x){ 
+                  pths <- all_simple_paths(graph, from = x, to = allnmes, mode = "out")
+                  unlist(lapply(pths, function(pth) {
+                      any(interven.vars %in% names(pth))
+                      
+                  }))
+              }))
+              
+              if(any(!chkpaths)) {
+                  error <- sprintf("Leftside variables %s not ancestors of intervention sets. Condition 6 violated.", 
+                                   paste(names(chkpaths)[!chkpaths], collapse = ", "))
+              }
+              
+          }
+          }
+          
           if("oper" %in% names(parsed.test) & any(!unlist(parsed.test$oper) %in% c("+", "-"))) {
             whoper <- unlist(parsed.test$oper)[!unlist(parsed.test$oper) %in% c("+", "-")]
             error <- sprintf("Operator '%s' not allowed!", whoper)
           }
           
-          allnmes <- unique(unlist(lapply(parsed.test$vars, names)))
           
-          realnms <- names(V(graph))
-          if(any(!allnmes %in% realnms)) {
-            
-            error <- sprintf("Names %s in effect not specified in graph!", 
-                             paste(allnmes[which(!allnmes %in% realnms)], collapse = ", "))
-            
-          }
           
-          if(any(V(graph)$leftside == 1 & names(V(graph)) != "Ul")) {
-            cond.vars <- names(V(graph)[V(graph)$leftside == 1 & names(V(graph)) != "Ul"])
-            chkpaths <- unlist(lapply(cond.vars, function(x){ 
-              pths <- all_simple_paths(graph, from = x, to = allnmes, mode = "out")
-              unlist(lapply(pths, function(pth) {
-                all(interven.vars %in% names(pth))
-                
-              }))
-            }))
-            
-            if(any(!chkpaths)) {
-              error <- sprintf("Leftside variables %s not ancestors of intervention sets. Condition 6 violated.", 
-                           paste(names(chkpaths)[!chkpaths], collapse = ", "))
-            }
-            
-          }
-          
+         
           
         }
         
