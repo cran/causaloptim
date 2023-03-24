@@ -69,7 +69,7 @@ void CTableau :: Setup (
 	m_pEnumCrnt = NULL;
 	m_EnumListLen = 0;
 
-	memset (m_pVertices, NULL, sizeof (m_pVertices));
+	memset (m_pVertices, 0, sizeof (m_pVertices));
 
 	// Check that the number of rows is greater than the number of parameters.
 	//
@@ -124,13 +124,13 @@ void CTableau :: Setup (
 	for (nRow = 0; nRow < p_Rows; nRow++)
 	{
 		nVar = 1 + m_ParamCnt + 1 + nRow;
-		snprintf (m_pVarLabels [nVar],1024, "$%02d", nRow);
+		snprintf (m_pVarLabels [nVar],LEN_LABEL, "$%02d", nRow);
 	}
 
 	for (nAug = 0; nAug < m_AugCnt; nAug++)
 	{
 		nVar = 1 + m_ParamCnt + 1 + p_Rows + nAug;
-		snprintf (m_pVarLabels [nVar],1024, "@%02d", nAug);
+		snprintf (m_pVarLabels [nVar],LEN_LABEL, "@%02d", nAug);
 	}
 
 
@@ -270,7 +270,7 @@ CTableau :: CTableau (FILE * p_pFile)
 	int			nParam;
 	int			nConst;
 
-	int			ScanRslt;
+//	int			ScanRslt;
 	char* objGet;
 
 	//*****************************************************************
@@ -619,7 +619,7 @@ void CTableau :: DetermineSwap (int & p_Basis, int & p_Var)
 {
 	int		nBasis;
 	int		nVar;
-	int		nFirstAug;
+//	int		nFirstAug;
 	double	Contr;
 	double	MaxPosContr = 0.0;
 	double	Ratio;
@@ -690,7 +690,7 @@ double CTableau :: ObjectiveValue ()
 
 char CTableau :: Optimize ()
 {
-	int		nVar;
+//	int		nVar;
 	int		Var;
 	int		Basis;
 
@@ -794,12 +794,12 @@ void CTableau :: WorkToOrig ()
 
 WORD * CTableau :: PopFirst ()
 {
-	int *		pNonBasics;
+//	int *		pNonBasics;
 	CEnumRcd *	pNextRcd;
 	CEnumRcd *	pEnumRcd;
 	double		CrntValue;
 	double		NewValue;
-	int			nNonBasis;
+//	int			nNonBasis;
 
 	if (m_pEnumList == NULL)
 		return NULL;
@@ -960,7 +960,7 @@ std::string CTableau :: VertexEnumerate ()
 	int *		pBasisVars;
 	double		Factor;
 	double		Pivot;
-	char		szResponse[100];
+//	char		szResponse[100];
 	char        buffer[1024];
 	std::string result;
 

@@ -159,7 +159,7 @@ GetLineStatus_ GetLine
 					// Indicates when the line no longer continues to the next
 					// line in the file.
 	
-	p_pDestString [0] = NULL;
+	p_pDestString [0] = 0;
 
 	while (! bLineEnd)
 	{
@@ -168,7 +168,7 @@ GetLineStatus_ GetLine
 		 */
 		if (fgets (szFileLine, MAX_FILE_LINE, p_pFile) == NULL)
 		{
-			if (p_pDestString [0] == NULL)
+			if (p_pDestString [0] == 0)
 				return GLS_EndOfFile;
 			else
 				return GLS_Success;
@@ -185,11 +185,11 @@ GetLineStatus_ GetLine
 
 		if (*pEndChar == '\\')
 		{
-			*pEndChar = NULL;
+			*pEndChar = 0;
 		}
 		else
 		{
-			*(pEndChar+1) = NULL;
+			*(pEndChar+1) = 0;
 			bLineEnd = TRUE;
 		}
 
@@ -223,7 +223,7 @@ BOOL COptimization_ :: ParseFile (FILE * p_pFile)
 	ParseState_	ParseState = PS_None;
 					// Indicates which section of the file is being parsed.
 
-	ParseState_ OldParseState = PS_None;
+//	ParseState_ OldParseState = PS_None;
 					// Indicates the previous section of the file that was
 					// just finished parsing.
 
@@ -487,12 +487,12 @@ CEquation_ * COptimization_ :: GetSolution (WORD & p_SolutionID)
 
 std::string COptimization_ :: Display ()
 {
-	char			szString [2048];
+	char			szString [2042];
 					// Memory in which to format the display strings.
 
 	WORD			nConst;
 					// Index into the array of constraints.
-    char buffer[2048];
+    char buffer[2056];
     std::string result;
     
 	/*
@@ -696,7 +696,7 @@ void COptimization_ :: GaussianElimination ()
 	CEquation_ *	pWorkEqn;
 	CEquation_ *	pEquation;
 	CEquation_ *	pInequality;
-	BOOL			bDiagonalized = FALSE; 
+//	BOOL			bDiagonalized = FALSE; 
 
 	/****************************************************
 	 * All equations must be equalities.
@@ -999,7 +999,7 @@ std::string COptimization_ :: EnumerateVertices ()
 	pLabels = new Label_ [Columns];
 	for (nInequality = 0; nInequality < Columns; nInequality++)
 	{
-		snprintf (pLabels [nInequality], 1024, "y%03d", nInequality + 1);
+		snprintf (pLabels [nInequality], LEN_LABEL, "y%03d", nInequality + 1);
 	}
 
 
@@ -1032,7 +1032,7 @@ std::string COptimization_ :: EnumerateVertices ()
 		result.append ("\t");
 		for (nInequality = 0; nInequality < Columns; nInequality++)
 		{
-			snprintf(buffer, 1024, "%5.2f ", pMatrixA [nVar][nInequality]);
+			snprintf(buffer, 1020, "%5.2f ", pMatrixA [nVar][nInequality]);
 		    result.append(buffer);
 		}
 		result.append("\n");
@@ -1051,7 +1051,7 @@ std::string COptimization_ :: EnumerateVertices ()
 	result.append ("Vector B\n");
 	for (nVar = 0; nVar < Rows; nVar++)
 	{
-		snprintf(buffer, 1024, "\t%5.2f\n", pVectorB [nVar]);
+		snprintf(buffer, 1020, "\t%5.2f\n", pVectorB [nVar]);
 	    result.append(buffer);
 	}
 	result.append ("\n");
