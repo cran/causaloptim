@@ -3,13 +3,13 @@ Encoding: UTF-8
 Type: Package
 Title: An Interface to Specify Causal Graphs and Compute Bounds on
         Causal Effects
-Version: 0.9.7
-Date: 2023-03-23
+Version: 0.9.8
+Date: 2023-10-31
 Authors@R: c(
     person("Michael C", "Sachs", role = c("aut", "cre"), email = "sachsmc@gmail.com"), 
     person("Erin E", "Gabriel", role = "aut"), 
     person("Arvid", "Sjölander", role = "aut"), 
-    person("Gustav", "Jonzon", role = "ctb", comment = "(improved vertex enumeration)"),
+    person("Gustav", "Jonzon", role = "aut"),
     person("Alexander A", "Balke", role = "ctb",comment ="(C++ code)"), 
     person("Colorado", "Reed", role = "ctb", comment = "(graph-creator.js)")
     )
@@ -32,19 +32,19 @@ License: MIT + file LICENSE
 Imports: methods, Rcpp (>= 1.0.1), shiny, rcdd
 Depends: R (>= 3.5.0), igraph
 LinkingTo: Rcpp
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/sachsmc/causaloptim
 BugReports: https://github.com/sachsmc/causaloptim/issues
 Config/testthat/edition: 3
 NeedsCompilation: yes
-Packaged: 2023-03-23 09:10:43 UTC; sachsmc
+Packaged: 2023-10-31 14:12:11 UTC; sachsmc
 Author: Michael C Sachs [aut, cre],
   Erin E Gabriel [aut],
   Arvid Sjölander [aut],
-  Gustav Jonzon [ctb] ((improved vertex enumeration)),
+  Gustav Jonzon [aut],
   Alexander A Balke [ctb] ((C++ code)),
   Colorado Reed [ctb] ((graph-creator.js))
 Repository: CRAN
-Date/Publication: 2023-03-24 12:00:15 UTC
+Date/Publication: 2023-10-31 14:30:02 UTC

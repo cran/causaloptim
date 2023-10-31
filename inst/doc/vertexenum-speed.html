@@ -120,13 +120,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -336,7 +343,7 @@ bounds</h1>
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(causaloptim)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(causaloptim)</span></code></pre></div>
 <div id="what-is-causaloptim" class="section level1">
 <h1>What is <code>causaloptim</code>?</h1>
 <p>In summary, <code>causaloptim</code> computes <em>symbolic tight
@@ -397,29 +404,29 @@ problem.</p>
 Benchmark Example. Multiple Instruments.
 </p>
 </div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(causaloptim)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">graph_from_literal</span>(Z1 <span class="sc">-+</span> X, Z2 <span class="sc">-+</span> X, Z2 <span class="sc">-+</span> Z1, Ul <span class="sc">-+</span> Z1, Ul <span class="sc">-+</span> Z2, X <span class="sc">-+</span> Y, Ur <span class="sc">-+</span> X, Ur <span class="sc">-+</span> Y)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(b)<span class="sc">$</span>leftside <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(b)<span class="sc">$</span>latent <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(b)<span class="sc">$</span>nvals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">E</span>(b)<span class="sc">$</span>rlconnect <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">E</span>(b)<span class="sc">$</span>edge.monotone <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">analyze_graph</span>(b, <span class="at">constraints =</span> <span class="cn">NULL</span>, <span class="at">effectt =</span> <span class="st">&quot;p{Y(X = 1) = 1} - p{Y(X = 0) = 1}&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(causaloptim)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">graph_from_literal</span>(Z1 <span class="sc">-+</span> X, Z2 <span class="sc">-+</span> X, Z2 <span class="sc">-+</span> Z1, Ul <span class="sc">-+</span> Z1, Ul <span class="sc">-+</span> Z2, X <span class="sc">-+</span> Y, Ur <span class="sc">-+</span> X, Ur <span class="sc">-+</span> Y)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">V</span>(b)<span class="sc">$</span>leftside <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">V</span>(b)<span class="sc">$</span>latent <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">V</span>(b)<span class="sc">$</span>nvals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">E</span>(b)<span class="sc">$</span>rlconnect <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">E</span>(b)<span class="sc">$</span>edge.monotone <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">analyze_graph</span>(b, <span class="at">constraints =</span> <span class="cn">NULL</span>, <span class="at">effectt =</span> <span class="st">&quot;p{Y(X = 1) = 1} - p{Y(X = 0) = 1}&quot;</span>)</span></code></pre></div>
 <p>Using <code>causaloptim</code> version <code>0.7.1</code> to bound
 <span class="math inline">\(\text{ACE}(X\rightarrow Y)\)</span> we got
 (with a 3.3 GHz Quad-Core Intel Core i5; your mileage may vary)</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(oldbnds <span class="ot">&lt;-</span> <span class="fu">optimize_effect</span>(obj))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     user  system  elapsed </span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 31093.57   47.02 61368.22</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">system.time</span>(oldbnds <span class="ot">&lt;-</span> <span class="fu">optimize_effect</span>(obj))</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;     user  system  elapsed </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; 31093.57   47.02 61368.22</span></span></code></pre></div>
 <p>Note the times (in seconds)! 😱 Our CPU spent almost <span class="math inline">\(9\)</span> hours working on this! 🤖 And we spent
 more than <span class="math inline">\(17\)</span> hours waiting! 😴
 Correctness is not enough; having to wait until the next day is a bad
 user experience. Using <code>causaloptim</code> version
 <code>0.8.0</code> however, we get</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(newbnds <span class="ot">&lt;-</span> <span class="fu">optimize_effect_2</span>(obj))</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  user  system  elapsed </span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.139   0.001    0.140</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">system.time</span>(newbnds <span class="ot">&lt;-</span> <span class="fu">optimize_effect_2</span>(obj))</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;  user  system  elapsed </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; 0.139   0.001    0.140</span></span></code></pre></div>
 <p>Now this is acceptable! 😊 Of course, we need to verify that the
 results are the same. It is difficult to see upon visual inspection that
 they are the same, because the vertices are returned in a different
@@ -427,39 +434,39 @@ order (and there are lots of them). Instead we can randomly generate
 some probability distributions that satisfy the graph, and compute the
 bounds and compare the results. First, we create the R functions that
 compute the bounds:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>eval_newbnds <span class="ot">&lt;-</span> <span class="fu">interpret_bounds</span>(newbnds<span class="sc">$</span>bounds, obj<span class="sc">$</span>parameters)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>eval_oldbnds <span class="ot">&lt;-</span> <span class="fu">interpret_bounds</span>(oldbnds<span class="sc">$</span>bounds, obj<span class="sc">$</span>parameters)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>eval_newbnds <span class="ot">&lt;-</span> <span class="fu">interpret_bounds</span>(newbnds<span class="sc">$</span>bounds, obj<span class="sc">$</span>parameters)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>eval_oldbnds <span class="ot">&lt;-</span> <span class="fu">interpret_bounds</span>(oldbnds<span class="sc">$</span>bounds, obj<span class="sc">$</span>parameters)</span></code></pre></div>
 <p>Then, we create a distribution by first randomly generating the
 counterfactual probabilities, and then calculating the observable
 probabilities by using the constraints implied by the DAG (which live in
 the <code>constraints</code> element of <code>obj</code>).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sim.qs <span class="ot">&lt;-</span> <span class="fu">rbeta</span>(<span class="fu">length</span>(obj<span class="sc">$</span>variables), .<span class="dv">05</span>, <span class="dv">1</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sim.qs <span class="ot">&lt;-</span> sim.qs <span class="sc">/</span> <span class="fu">sum</span>(sim.qs)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(sim.qs) <span class="ot">&lt;-</span> obj<span class="sc">$</span>variables</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>inenv <span class="ot">&lt;-</span> <span class="fu">new.env</span>()</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sim.qs)) {</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assign</span>(<span class="fu">names</span>(sim.qs)[j], sim.qs[j], inenv)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">as.list</span>(obj<span class="sc">$</span>constraints[<span class="sc">-</span><span class="dv">1</span>]), <span class="cf">function</span>(x){</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    x1 <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(x, <span class="st">&quot; = &quot;</span>)[[<span class="dv">1</span>]]</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    x0 <span class="ot">&lt;-</span> <span class="fu">paste</span>(x1[<span class="dv">1</span>], <span class="st">&quot; = &quot;</span>, x1[<span class="dv">2</span>])</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">eval</span>(<span class="fu">parse</span>(<span class="at">text =</span> x0), <span class="at">envir =</span> inenv)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">lapply</span>(obj<span class="sc">$</span>parameters, <span class="cf">function</span>(x) <span class="fu">get</span>(x, <span class="at">envir =</span> inenv))</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(params) <span class="ot">&lt;-</span> obj<span class="sc">$</span>parameters</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>sim.qs <span class="ot">&lt;-</span> <span class="fu">rbeta</span>(<span class="fu">length</span>(obj<span class="sc">$</span>variables), .<span class="dv">05</span>, <span class="dv">1</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>sim.qs <span class="ot">&lt;-</span> sim.qs <span class="sc">/</span> <span class="fu">sum</span>(sim.qs)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">names</span>(sim.qs) <span class="ot">&lt;-</span> obj<span class="sc">$</span>variables</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>inenv <span class="ot">&lt;-</span> <span class="fu">new.env</span>()</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sim.qs)) {</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    </span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="fu">assign</span>(<span class="fu">names</span>(sim.qs)[j], sim.qs[j], inenv)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    </span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>}</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">as.list</span>(obj<span class="sc">$</span>constraints[<span class="sc">-</span><span class="dv">1</span>]), <span class="cf">function</span>(x){</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>    x1 <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(x, <span class="st">&quot; = &quot;</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    x0 <span class="ot">&lt;-</span> <span class="fu">paste</span>(x1[<span class="dv">1</span>], <span class="st">&quot; = &quot;</span>, x1[<span class="dv">2</span>])</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>    <span class="fu">eval</span>(<span class="fu">parse</span>(<span class="at">text =</span> x0), <span class="at">envir =</span> inenv)</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>})</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">lapply</span>(obj<span class="sc">$</span>parameters, <span class="cf">function</span>(x) <span class="fu">get</span>(x, <span class="at">envir =</span> inenv))</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="fu">names</span>(params) <span class="ot">&lt;-</span> obj<span class="sc">$</span>parameters</span></code></pre></div>
 <p>Then we pass the probabilities to the bounds functions and
 compare:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">do.call</span>(eval_newbnds, params) </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           lower      upper</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; q0_0 -0.5767526 0.01180693</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">do.call</span>(eval_oldbnds, params)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           lower      upper</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; q0_0 -0.5767526 0.01180693</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">do.call</span>(eval_newbnds, params) </span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt;           lower     upper</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; q0_0 0.06839405 0.4544355</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">do.call</span>(eval_oldbnds, params)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;           lower     upper</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; q0_0 0.06839405 0.4544355</span></span></code></pre></div>
 <p>Success!</p>
 <p>This improvement was achieved by modernizing a key back-end
 optimization algorithm and implementation. To see how it fits into the
@@ -602,14 +609,14 @@ m_l}&amp;0_{m_l\times
 m_e}\end{pmatrix}y\leq\begin{pmatrix}c\\0_{m_l\times1}\end{pmatrix}\}\})\end{align*}\]</span>
 The coefficient matrix and right hand side vector of the dual polytope
 are constructed in the few lines of code below (where <span class="math inline">\(c_0:=c\)</span>).</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>a1 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">cbind</span>(<span class="fu">t</span>(A_l), <span class="fu">t</span>(A_e)),</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">cbind</span>(<span class="fu">diag</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">nrow =</span> m_l, <span class="at">ncol =</span> m_l), <span class="fu">matrix</span>(<span class="at">data =</span> <span class="dv">0</span>, <span class="at">nrow =</span> m_l, <span class="at">ncol =</span> m_e)))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(c0,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">matrix</span>(<span class="at">data =</span> <span class="dv">0</span>, <span class="at">nrow =</span> m_l, <span class="at">ncol =</span> <span class="dv">1</span>))</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (opt <span class="sc">==</span> <span class="st">&quot;max&quot;</span>) {</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  a1 <span class="ot">&lt;-</span> <span class="sc">-</span>a1</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  b1 <span class="ot">&lt;-</span> <span class="sc">-</span>b1</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>a1 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">cbind</span>(<span class="fu">t</span>(A_l), <span class="fu">t</span>(A_e)),</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>            <span class="fu">cbind</span>(<span class="fu">diag</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">nrow =</span> m_l, <span class="at">ncol =</span> m_l), <span class="fu">matrix</span>(<span class="at">data =</span> <span class="dv">0</span>, <span class="at">nrow =</span> m_l, <span class="at">ncol =</span> m_e)))</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>b1 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(c0,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>            <span class="fu">matrix</span>(<span class="at">data =</span> <span class="dv">0</span>, <span class="at">nrow =</span> m_l, <span class="at">ncol =</span> <span class="dv">1</span>))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="cf">if</span> (opt <span class="sc">==</span> <span class="st">&quot;max&quot;</span>) {</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  a1 <span class="ot">&lt;-</span> <span class="sc">-</span>a1</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  b1 <span class="ot">&lt;-</span> <span class="sc">-</span>b1</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="vertex-enumeration" class="section level2">
 <h2>Vertex Enumeration</h2>
@@ -626,12 +633,12 @@ arithmetic, so we don’t have to worry about any numerical instability
 issues, e.g. Also, it already interfaces with R<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. The following lines
 of code extract the vertices of the dual polytope and store them as rows
 of a matrix.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rcdd)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>hrep <span class="ot">&lt;-</span> <span class="fu">makeH</span>(<span class="at">a1 =</span> a1, <span class="at">b1 =</span> b1)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>vrep <span class="ot">&lt;-</span> <span class="fu">scdd</span>(<span class="at">input =</span> hrep)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>matrix_of_vrep <span class="ot">&lt;-</span> vrep<span class="sc">$</span>output</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>indices_of_vertices <span class="ot">&lt;-</span> matrix_of_vrep[ , <span class="dv">1</span>] <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> matrix_of_vrep[ , <span class="dv">2</span>] <span class="sc">==</span> <span class="dv">1</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>vertices <span class="ot">&lt;-</span> matrix_of_vrep[indices_of_vertices, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(rcdd)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>hrep <span class="ot">&lt;-</span> <span class="fu">makeH</span>(<span class="at">a1 =</span> a1, <span class="at">b1 =</span> b1)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>vrep <span class="ot">&lt;-</span> <span class="fu">scdd</span>(<span class="at">input =</span> hrep)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>matrix_of_vrep <span class="ot">&lt;-</span> vrep<span class="sc">$</span>output</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>indices_of_vertices <span class="ot">&lt;-</span> matrix_of_vrep[ , <span class="dv">1</span>] <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> matrix_of_vrep[ , <span class="dv">2</span>] <span class="sc">==</span> <span class="dv">1</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>vertices <span class="ot">&lt;-</span> matrix_of_vrep[indices_of_vertices, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code></pre></div>
 <p>The rest is simply a matter of plugging them into the dual objective
 function, evaluating the expression and presenting the results!<br />
 The first part of this is done by the following line of code, where the
@@ -639,7 +646,7 @@ utility function <code>evaluate_objective</code> pretty much does what
 you expect it to do (here <code>(c1_num,p)</code><span class="math inline">\(=(\begin{pmatrix}b_{\ell}^T&amp;1\end{pmatrix},p)\)</span>
 separates the dual objective gradient into its numeric and symbolic
 parts).</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>expressions <span class="ot">&lt;-</span> <span class="fu">apply</span>(vertices, <span class="dv">1</span>, <span class="cf">function</span>(y) <span class="fu">evaluate_objective</span>(<span class="at">c1_num =</span> c1_num, <span class="at">p =</span> p, <span class="at">y =</span> y))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>expressions <span class="ot">&lt;-</span> <span class="fu">apply</span>(vertices, <span class="dv">1</span>, <span class="cf">function</span>(y) <span class="fu">evaluate_objective</span>(<span class="at">c1_num =</span> c1_num, <span class="at">p =</span> p, <span class="at">y =</span> y))</span></code></pre></div>
 <p>There are still a few places in <code>causaloptim</code> that are
 worthwhile to optimize, but with this major one resolved we looking
 forward to researchers taking advantage of the generalized class of

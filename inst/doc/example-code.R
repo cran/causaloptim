@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -25,7 +25,7 @@ optimize_effect_2(obj2)
 obj3 <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 2) = 1} - p{Y(X = 1) = 1}")
 optimize_effect_2(obj3)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  b <- graph_from_literal(Z1 -+ X, Z2 -+ X, Z2 -+ Z1, Ul -+ Z1, Ul -+ Z2,
 #                          X -+ Y, Ur -+ X, Ur -+ Y)
 #  V(b)$leftside <- c(1, 0, 1, 1, 0, 0)

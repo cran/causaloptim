@@ -136,7 +136,20 @@ create_response_function <- function(graph, right.vars, cond.vars) {
 #' 
 #' @return A list of 3 data frames of counterfactuals and their associated labels
 #' @export
-
+#' @examples
+#' graphres <- graph_from_literal(Z -+ X, X -+ Y, Ul -+ Z, Ur -+ X, Ur -+ Y)
+#' V(graphres)$leftside <- c(1, 0, 0, 1, 0)
+#' V(graphres)$latent <- c(0, 0, 0, 1, 1)
+#' V(graphres)$nvals <- c(3, 2, 2, 2, 2)
+#' V(graphres)$exposure <- c(0, 1, 0, 0, 0)
+#' V(graphres)$outcome <- c(0, 0, 1, 0, 0)
+#' E(graphres)$rlconnect <- c(0, 0, 0, 0, 0)
+#' E(graphres)$edge.monotone <- c(0, 0, 0, 0, 0)
+#' constraints <- "X(Z = 1) >= X(Z = 0)"
+#' cond.vars <- V(graphres)[V(graphres)$leftside == 1 & names(V(graphres)) != "Ul"]
+#' right.vars <- V(graphres)[V(graphres)$leftside == 0 & names(V(graphres)) != "Ur"] 
+#' respvars <- create_response_function(graphres, right.vars, cond.vars)
+#' create_q_matrix(respvars, right.vars, cond.vars, constraints)
 
 create_q_matrix <- function(respvars, right.vars, cond.vars, constraints) {
     
@@ -231,12 +244,42 @@ create_q_matrix <- function(respvars, right.vars, cond.vars, constraints) {
 #' 
 #' @export
 #' @return A list with the R matrix and the string representation
+#' @examples
+#' graph <- graph_from_literal(Z -+ X, X -+ Y, Ul -+ Z, Ur -+ X, Ur -+ Y)
+#' V(graph)$leftside <- c(1, 0, 0, 1, 0)
+#' V(graph)$latent <- c(0, 0, 0, 1, 1)
+#' V(graph)$nvals <- c(3, 2, 2, 2, 2)
+#' V(graph)$exposure <- c(0, 1, 0, 0, 0)
+#' V(graph)$outcome <- c(0, 0, 1, 0, 0)
+#' E(graph)$rlconnect <- c(0, 0, 0, 0, 0)
+#' E(graph)$edge.monotone <- c(0, 0, 0, 0, 0)
+#' constraints <- "X(Z = 1) >= X(Z = 0)"
+#' effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}"
+#' leftind <- vertex_attr(graph)$leftside
+#' cond.vars <- V(graph)[leftind == 1 & names(V(graph)) != "Ul"]
+#' right.vars <- V(graph)[leftind == 0 & names(V(graph)) != "Ur"] 
+#' obsvars <- c(right.vars, cond.vars)
+#' observed.variables <- V(graph)[V(graph)$latent == 0]
+#' var.values <- lapply(names(observed.variables), 
+#' function(varname) seq(from = 0, to = causaloptim:::numberOfValues(graph, varname) - 1))
+#' names(var.values) <- names(observed.variables)
+#' p.vals <- do.call(expand.grid, var.values)
+#' jd <- do.call(paste0, p.vals[, names(right.vars[right.vars$latent == 0]), drop = FALSE])
+#' cond <- do.call(paste0, p.vals[, names(cond.vars[cond.vars$latent == 0]), drop = FALSE])
+#' parameters <- paste0("p", paste(jd, cond, sep = "_"))
+#' parameters.key <- paste(paste(names(right.vars[right.vars$latent == 0]), collapse = ""), 
+#' paste(names(cond.vars[cond.vars$latent == 0]), collapse = ""), sep = "_")
+#' respvars <- create_response_function(graph, right.vars, cond.vars)
+#' q.list <- create_q_matrix(respvars, right.vars, cond.vars, constraints)
+#' variables <- as.character(unique(q.list$q.vals.all.lookup$vars))
+#' linconstr.list <- create_R_matrix(graph, obsvars, respvars, p.vals, parameters, q.list, variables)
 
 create_R_matrix <- function(graph, obsvars, respvars, p.vals, parameters, q.list, variables) {
     
     q.vals <- q.list$q.vals
     q.vals.all <- q.list$q.vals.all
     q.vals.all.lookup <- q.list$q.vals.all.lookup
+    obsvarnames <- names(obsvars)
     
     parent_lookup <- lapply(1:length(obsvars), function(i) {
         tmpar <- adjacent_vertices(graph, obsvars[i], "in")[[1]]
@@ -253,18 +296,18 @@ create_R_matrix <- function(graph, obsvars, respvars, p.vals, parameters, q.list
         
         if (length(parents) == 0){
             
-            x <- respvars[[names(obsvars[[i]])]]$values[[which(respvars[[names(obsvars[[i]])]]$index == r[i])]]
+            x <- respvars[[obsvarnames[i]]]$values[[which(respvars[[obsvarnames[i]]]$index == r[i])]]
             do.call(x, list())
             
         } else {
             
             lookin <- lapply(names(parents), function(gu) {
                 
-                as.numeric(gee_r(r, which(names(obsvars) == gu)))
+                as.numeric(gee_r(r, which(obsvarnames == gu)))
                 
             })
             names(lookin) <- names(parents)
-            inres <- respvars[[names(obsvars[[i]])]]$values[[which(respvars[[names(obsvars[[i]])]]$index == r[i])]]
+            inres <- respvars[[obsvarnames[i]]]$values[[which(respvars[[obsvarnames[i]]]$index == r[i])]]
             do.call(inres, lookin)
             
         }
@@ -272,23 +315,27 @@ create_R_matrix <- function(graph, obsvars, respvars, p.vals, parameters, q.list
     
     
     res.mat <- matrix(NA, ncol = ncol(q.vals.all), nrow = nrow(q.vals.all))
+    q.vals.mat <- as.matrix(q.vals.all.lookup[, -ncol(q.vals.all.lookup)])
     for(k in 1:nrow(q.vals.all)) {
         for(j in 1:ncol(q.vals.all)) {
-            res.mat[k, j] <- gee_r(r = unlist(q.vals.all.lookup[k, -ncol(q.vals.all.lookup)]), i = j)
+            res.mat[k, j] <- gee_r(r = q.vals.mat[k, ], i = j)
             
         }
     }
-    colnames(res.mat) <- names(obsvars)
+    colnames(res.mat) <- obsvarnames
     
     R <- matrix(0, nrow = nrow(p.vals) + 1, ncol = nrow(q.vals))
     R[1, ] <- 1
     removeprows <- rep(0, nrow(p.vals))
     p.constraints <- rep(NA, nrow(p.vals) + 1)
     p.constraints[1] <- paste(paste(variables, collapse= " + "), " = 1")
+    pvalmat <- as.matrix(p.vals)
+    pnames <- colnames(p.vals)
     for(pj in 1:nrow(p.vals)) {
         
-        p.chk <- do.call(rbind, lapply(1:nrow(res.mat), function(i) p.vals[pj, , drop = FALSE]))
-        inp <- apply(res.mat[, colnames(p.chk), drop = FALSE] == p.chk, 1, all)
+        #p.chk <- do.call("rbind", lapply(1:nrow(res.mat), function(i) p.vals[pj, , drop = FALSE]))
+        p.chk <- matrix(pvalmat[pj,], nrow = nrow(res.mat), ncol = ncol(pvalmat), byrow = TRUE)
+        inp <- apply(res.mat[, pnames, drop = FALSE] == p.chk, 1, all)
         
         if(!any(inp)) {
             removeprows[pj] <- 1
@@ -330,14 +377,46 @@ create_R_matrix <- function(graph, obsvars, respvars, p.vals, parameters, q.list
 #' 
 #' @export
 #' @return A list with the target effect in terms of qs
-
+#' @examples
+#' graph <- graph_from_literal(Z -+ X, X -+ Y, Ul -+ Z, Ur -+ X, Ur -+ Y)
+#' V(graph)$leftside <- c(1, 0, 0, 1, 0)
+#' V(graph)$latent <- c(0, 0, 0, 1, 1)
+#' V(graph)$nvals <- c(3, 2, 2, 2, 2)
+#' V(graph)$exposure <- c(0, 1, 0, 0, 0)
+#' V(graph)$outcome <- c(0, 0, 1, 0, 0)
+#' E(graph)$rlconnect <- c(0, 0, 0, 0, 0)
+#' E(graph)$edge.monotone <- c(0, 0, 0, 0, 0)
+#' constraints <- "X(Z = 1) >= X(Z = 0)"
+#' effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}"
+#' leftind <- vertex_attr(graph)$leftside
+#' cond.vars <- V(graph)[leftind == 1 & names(V(graph)) != "Ul"]
+#' right.vars <- V(graph)[leftind == 0 & names(V(graph)) != "Ur"] 
+#' obsvars <- c(right.vars, cond.vars)
+#' observed.variables <- V(graph)[V(graph)$latent == 0]
+#' var.values <- lapply(names(observed.variables), 
+#' function(varname) seq(from = 0, to = causaloptim:::numberOfValues(graph, varname) - 1))
+#' names(var.values) <- names(observed.variables)
+#' p.vals <- do.call(expand.grid, var.values)
+#' jd <- do.call(paste0, p.vals[, names(right.vars[right.vars$latent == 0]), drop = FALSE])
+#' cond <- do.call(paste0, p.vals[, names(cond.vars[cond.vars$latent == 0]), drop = FALSE])
+#' parameters <- paste0("p", paste(jd, cond, sep = "_"))
+#' parameters.key <- paste(paste(names(right.vars[right.vars$latent == 0]), collapse = ""), 
+#' paste(names(cond.vars[cond.vars$latent == 0]), collapse = ""), sep = "_")
+#' respvars <- create_response_function(graph, right.vars, cond.vars)
+#' q.list <- create_q_matrix(respvars, right.vars, cond.vars, constraints)
+#' variables <- as.character(unique(q.list$q.vals.all.lookup$vars))
+#' linconstr.list <- create_R_matrix(graph, obsvars, respvars, p.vals, parameters, q.list, variables)
+#' parameters <- linconstr.list$newparams
+#' p.vals <- linconstr.list$newpvals
+#' effect <- parse_effect(effectt)
+#' var.eff <- create_effect_vector(effect, graph, obsvars, respvars, q.list, variables)
 
 create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, variables) {
     
     q.vals <- q.list$q.vals
     q.vals.all <- q.list$q.vals.all
     q.vals.all.lookup <- q.list$q.vals.all.lookup
-    
+    obsvarnames <- names(obsvars)
     
     parent_lookup <- lapply(1:length(obsvars), function(i) {
         tmpar <- adjacent_vertices(graph, obsvars[i], "in")[[1]]
@@ -370,18 +449,18 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                     
                     if (length(parents) == 0){
                         
-                        x <- respvars[[names(obsvars[[i]])]]$values[[which(respvars[[names(obsvars[[i]])]]$index == r[i])]]
+                        x <- respvars[[obsvarnames[i]]]$values[[which(respvars[[obsvarnames[i]]]$index == r[i])]]
                         do.call(x, list())
                         
                     } else {
                         
                         lookin <- lapply(names(parents), function(gu) {
                             
-                            as.numeric(gee_r(r, which(names(obsvars) == gu)))
+                            as.numeric(gee_r(r, which(obsvarnames == gu)))
                             
                         })
                         names(lookin) <- names(parents)
-                        inres <- respvars[[names(obsvars[[i]])]]$values[[which(respvars[[names(obsvars[[i]])]]$index == r[i])]]
+                        inres <- respvars[[obsvarnames[i]]]$values[[which(respvars[[obsvarnames[i]]]$index == r[i])]]
                         do.call(inres, lookin)
                         
                     }
@@ -389,13 +468,14 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                 
                 
                 res.mat <- matrix(NA, ncol = ncol(q.vals.all), nrow = nrow(q.vals.all))
+                q.vals.mat <- as.matrix(q.vals.all.lookup[, -ncol(q.vals.all.lookup)])
                 for(k in 1:nrow(q.vals.all)) {
                     for(j in 1:ncol(q.vals.all)) {
-                        res.mat[k, j] <- gee_r(r = unlist(q.vals.all.lookup[k, -ncol(q.vals.all.lookup)]), i = j)
+                        res.mat[k, j] <- gee_r(r = q.vals.mat[k, ], i = j)
                         
                     }
                 }
-                colnames(res.mat) <- names(obsvars)
+                colnames(res.mat) <- obsvarnames
                 
                 res.mat.list[[v2]] <- res.mat
                 
@@ -448,18 +528,18 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                         
                     } else if (length(parents) == 0){
                         
-                        x <- respvars[[names(obsvars[[i]])]]$values[[which(respvars[[names(obsvars[[i]])]]$index == r[i])]]
+                        x <- respvars[[obsvarnames[i]]]$values[[which(respvars[[obsvarnames[i]]]$index == r[i])]]
                         do.call(x, list())
                         
                     } else {
                         
                         lookin <- lapply(names(parents), function(gu) {
                             
-                            as.numeric(gee_rA(r, which(names(obsvars) == gu), path = paste(gu, "->", path)))
+                            as.numeric(gee_rA(r, which(obsvarnames == gu), path = paste(gu, "->", path)))
                             
                         })
                         names(lookin) <- names(parents)
-                        inres <- respvars[[names(obsvars[[i]])]]$values[[which(respvars[[names(obsvars[[i]])]]$index == r[i])]]
+                        inres <- respvars[[obsvarnames[i]]]$values[[which(respvars[[obsvarnames[i]]]$index == r[i])]]
                         do.call(inres, lookin)
                         
                     }
@@ -470,11 +550,11 @@ create_effect_vector <- function(effect, graph, obsvars, respvars, q.list, varia
                 for(k in 1:nrow(q.vals.all)) {
                     for(j in 1:ncol(q.vals.all)) {
                         res.mat[k, j] <- gee_rA(r = unlist(q.vals.all.lookup[k, -ncol(q.vals.all.lookup)]), i = j, 
-                                                path = names(obsvars)[j])
+                                                path = obsvarnames[j])
                         
                     }
                 }
-                colnames(res.mat) <- names(obsvars)
+                colnames(res.mat) <- obsvarnames
                 
                 res.mat.list[[v2]] <- res.mat
                 

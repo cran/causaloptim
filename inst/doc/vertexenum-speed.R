@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -31,17 +31,17 @@ obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X =
 #  #>  user  system  elapsed
 #  #> 0.139   0.001    0.140
 
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 
 oldbnds <- readRDS("MIV-bounds-result.RData")
 newbnds <- optimize_effect_2(obj)
 
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 eval_newbnds <- interpret_bounds(newbnds$bounds, obj$parameters)
 eval_oldbnds <- interpret_bounds(oldbnds$bounds, obj$parameters)
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 sim.qs <- rbeta(length(obj$variables), .05, 1)
 sim.qs <- sim.qs / sum(sim.qs)
 
@@ -62,7 +62,7 @@ res <- lapply(as.list(obj$constraints[-1]), function(x){
 params <- lapply(obj$parameters, function(x) get(x, envir = inenv))
 names(params) <- obj$parameters
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 do.call(eval_newbnds, params) 
 do.call(eval_oldbnds, params)
 
