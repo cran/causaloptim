@@ -2,15 +2,16 @@
 % Please edit documentation in R/process-optimizer.R
 \name{optimize_effect_2}
 \alias{optimize_effect_2}
-\title{Run the optimizer}
+\alias{optimize_effect}
+\title{Run the optimizer to obtain symbolic bounds}
 \usage{
 optimize_effect_2(obj)
 }
 \arguments{
-\item{obj}{Object as returned by \link{analyze_graph}}
+\item{obj}{Object as returned by \link{analyze_graph} or \link{create_linearcausalproblem}}
 }
 \value{
-An object of class "balkebound" that contains the bounds and logs as character strings
+An object of class "balkebound" that is a list that contains the bounds and logs as character strings, and a function to compute the bounds
 }
 \description{
 Given an object with the linear programming problem set up, compute the bounds
@@ -19,14 +20,7 @@ be converted to R functions using \link{interpret_bounds}, or latex code using
 \link{latex_bounds}.
 }
 \examples{
-b <- graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y)
-V(b)$leftside <- c(0,0,0)
-V(b)$latent <- c(0,0,1)
-V(b)$nvals <- c(2,2,2)
-E(b)$rlconnect <- E(b)$edge.monotone <- c(0, 0, 0)
+b <- initialize_graph(graph_from_literal(X -+ Y, Ur -+ X, Ur -+ Y))
 obj <- analyze_graph(b, constraints = NULL, effectt = "p{Y(X = 1) = 1} - p{Y(X = 0) = 1}")
 optimize_effect_2(obj)
-}
-\seealso{
-\link{optimize_effect} which is a legacy version
 }

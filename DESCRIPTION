@@ -3,8 +3,8 @@ Encoding: UTF-8
 Type: Package
 Title: An Interface to Specify Causal Graphs and Compute Bounds on
         Causal Effects
-Version: 0.9.8
-Date: 2023-10-31
+Version: 1.0.0
+Date: 2024-10-16
 Authors@R: c(
     person("Michael C", "Sachs", role = c("aut", "cre"), email = "sachsmc@gmail.com"), 
     person("Erin E", "Gabriel", role = "aut"), 
@@ -29,17 +29,16 @@ Description: When causal quantities are not identifiable from the observed data,
             a paper by Sachs, Jonzon, Gabriel, and Sjölander (2022) 
             <doi:10.1080/10618600.2022.2071905>.
 License: MIT + file LICENSE
-Imports: methods, Rcpp (>= 1.0.1), shiny, rcdd
+Imports: shiny, rcdd
 Depends: R (>= 3.5.0), igraph
-LinkingTo: Rcpp
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown
 VignetteBuilder: knitr
-URL: https://github.com/sachsmc/causaloptim
-BugReports: https://github.com/sachsmc/causaloptim/issues
+URL: https://sachsmc.github.io/causaloptim/
+BugReports: https://github.com/sachsmc/causaloptim/issues/
 Config/testthat/edition: 3
-NeedsCompilation: yes
-Packaged: 2023-10-31 14:12:11 UTC; sachsmc
+NeedsCompilation: no
+Packaged: 2024-10-17 08:39:45 UTC; micsac
 Author: Michael C Sachs [aut, cre],
   Erin E Gabriel [aut],
   Arvid Sjölander [aut],
@@ -47,4 +46,4 @@ Author: Michael C Sachs [aut, cre],
   Alexander A Balke [ctb] ((C++ code)),
   Colorado Reed [ctb] ((graph-creator.js))
 Repository: CRAN
-Date/Publication: 2023-10-31 14:30:02 UTC
+Date/Publication: 2024-10-17 09:00:02 UTC

@@ -3,7 +3,10 @@
 #' @param x a list
 #' @param name name of the top element of the list
 #' @return The name of the deepest nested list element
-#' @noRd
+#' @export
+#' @examples
+#' btm_var(list(X = list(Y = list(K = 1))))
+#' 
 
 btm_var <- function(x, name = NULL) {
     
@@ -20,10 +23,15 @@ btm_var <- function(x, name = NULL) {
 
 #' Recursive function to translate an effect list to a path sequence
 #' 
-#' @param x A list of vars as returned by parse_effect
+#' @param x A list of vars as returned by \link{parse_effect}
 #' @param name The name of the outcome variable
 #' @return a list of characters describing the path sequence
-#' @noRd
+#' @export
+#' @examples
+#' nofill <- "p{Y(X = 1, M1 = 1, M2(X = 1, M1 = 1)) = 1}"
+#' eff2 <- parse_effect(nofill)$vars[[1]][[1]]
+#' list_to_path(eff2, "Y")
+#' 
 
 list_to_path <- function(x, name = NULL) {
     
@@ -148,7 +156,7 @@ queryparsecheck <- function(effecttext) {
 #' E(graphres)$rlconnect <- c(0, 0, 0, 0, 0, 0)
 #' E(graphres)$edge.monotone <- c(0, 0, 0, 0, 0, 0)
 #' effecttext <- "p{Y(M(X = 0), X = 1) = 1} - p{Y(M(X = 0), X = 0) = 1}"
-#' causaloptim:::querycheck(effecttext = effecttext, graphres = graphres) # TRUE
+#' querycheck(effecttext = effecttext, graphres = graphres) # TRUE
 querycheck <- function(effecttext, graphres) {
     # Check parsability
     if (!queryparsecheck(effecttext = effecttext)) {
@@ -488,4 +496,87 @@ causalproblemcheck <- function(digraph, query) {
         }
     }
     FALSE
+}
+
+
+#' Sample from a Dirichlet distribution
+#' 
+#' Generate a random vector from the k-dimensional symmetric Dirichlet distribution with concentration parameter alpha
+#' 
+#' @param k Length of the vector
+#' @param alpha Concentration parameters
+#' @returns a numeric vector
+#' @export
+#' @examples
+#' qvals <- rdirichlet(16, 1)
+#' sum(qvals)
+rdirichlet <- function(k, alpha = 1) {
+    tmp <- rgamma(k, alpha)
+    tmp / sum(tmp)
+}
+
+
+
+#' Find all paths in a causal model
+#' 
+#' Given a set of response functions, find all directed paths from from to to 
+#' 
+#' @param respvars A set of response functions as created by \link{create_response_function}
+#' @param from A character string indicating the start of the path
+#' @param to A character string indicating the end of the path
+#' @returns A list with all the paths or a list with NULL if there are none
+#' @export
+#' @examples
+#'  b <- initialize_graph(igraph::graph_from_literal(X -+ Z, Z -+ Y, X -+ Y, Ur -+ Z, Ur -+ Y))
+#'  medmod <- create_response_function(b)
+#'  find_all_paths(medmod, "X", "Y")
+#'  igraph::all_simple_paths(b, "X", "Y", mode = "out")
+#' 
+find_all_paths <- function(respvars, from, to) {
+    
+    parent_lookup <- lapply(respvars, \(var) {
+        
+        unlist(lapply(var$values, \(fun) {
+            names(formals(fun))
+        })) |> unique()
+        
+    })
+    
+    pathlist <- list(to)
+    k <- 0
+    repeat {
+        newplist <- pathlist
+        toadd <- NULL
+        toremove <- NULL
+        for(i in 1:length(pathlist)) {
+            if(is.null(parent_lookup[[pathlist[[i]][1]]])) {
+                newplist[[i]] <- c(path)
+            } else {
+                toadd[[i]] <- lapply(parent_lookup[[pathlist[[i]][1]]], \(x) c(x, pathlist[[i]]))
+                toremove <- c(toremove, i)
+            }
+        }
+        if(is.null(toremove)) break
+
+                pathlist <- pathlist[-toremove]
+        for(i in 1:length(toadd)) {
+            pathlist <- c(pathlist, toadd[[i]])
+        }
+        
+        k <- k + 1
+        if(k > 1000) {
+            stop("Greater than 1000 cycles, something wrong")
+        }
+
+    }
+    
+    unlist(lapply(pathlist, \(x) {
+      if(x[1] == from & x[length(x)] == to) {
+          paste(x , collapse = " -> ")
+          } else NULL  
+    }))
+    
+    
+    
+    
 }

@@ -348,3 +348,97 @@ graphrescheck <- function(graphres, ret = FALSE) {
     }
     FALSE
 }
+
+#' Check for paths from from to to 
+#' 
+#' 
+#' @param parent_lookup A list of vectors
+#' @param from character
+#' @param to character
+#' @param prev Should always be null when first called
+#' @returns A list of paths or null if no path is found
+#' @export
+#' @examples
+#' parent_lookup <- list(M = "Am", Y = c("M", "Ay"), A = NULL, Am = "A", Ay = "A")
+#' check_parents(parent_lookup, "A", "Y")
+
+check_parents <- function(parent_lookup, from, to, prev = NULL) {
+    
+    this <- if(is.null(prev)){
+        prev <- to
+        to 
+    } else prev[1]
+    parents <- parent_lookup[[this]]
+    nprev <- c(this, prev)
+    
+    if(is.null(parents)) {
+        prev
+    } else if(from %in% parents) {
+        c(from, prev)
+    } else {
+        res <- list()
+        for(pa in parents) {
+            res[[pa]] <- check_parents(parent_lookup, from = from, to = to, 
+                                       prev = c(pa, prev))
+        }
+        
+        res
+    }
+    
+    
+    
+}
+
+
+#' Initialize an igraph object for use with causaloptim
+#' 
+#' Checks for required attributes and adds defaults if missing
+#'
+#' @param graph An object of class igraph
+#' @returns An igraph with the vertex attributes leftside, latent, and nvals, and edge attributes rlconnect and edge.monotone
+#' @export
+#' @examples
+#' b <- igraph::graph_from_literal(X -+ Y)
+#' b2 <- initialize_graph(b)
+#' V(b2)$nvals
+#' 
+initialize_graph <- function(graph) {
+    
+    nvars <- length(V(graph))
+    
+    if(is.null(V(graph)$latent)) {
+        Unodes <- grep("^U", names(V(graph)))
+        V(graph)$latent <- rep(0, nvars)
+        V(graph)$latent[Unodes] <- 1
+    }
+    
+    if(is.null(V(graph)$leftside)) {
+        V(graph)$leftside <- rep(0, nvars)
+        if("Ur" %in% names(V(graph))) {
+            rightV <- neighbors(graph, "Ur", mode = "out")
+            leftdex <- match(setdiff(names(V(graph)), c("Ur", names(rightV))), 
+                             names(V(graph)))
+            V(graph)$leftside[leftdex] <- 1
+        }
+    }
+    
+    if(is.null(V(graph)$nvals)) {
+        V(graph)$nvals <- rep(2, nvars)
+    }
+    
+    if(is.null(E(graph)$rlconnect)) {
+        E(graph)$rlconnect <- rep(0, length(E(graph)))
+        
+        rlchk <- E(graph)[V(graph)[V(graph)$leftside == 1] %<-% V(graph)[V(graph)$leftside == 0]]
+        edge_attr(graph, "rlconnect", index = rlchk) <- 1
+        
+    } 
+    
+    if(is.null(E(graph)$edge.monotone)) {
+        E(graph)$edge.monotone <- rep(0, length(E(graph)))
+    }
+    
+    graph
+    
+}
+
